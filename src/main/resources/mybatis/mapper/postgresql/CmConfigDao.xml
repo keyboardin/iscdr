@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="CmConfigDao">
+
+	<!-- 조회조건 -->
+	<sql id="whereCondition">
+		AND T.use_yn = 'Y'
+	</sql>
+
+	<select id="requestListCount" parameterType="CmConfigModel" resultType="CmConfigModel">
+		/* CmConfigDao.requestListCount 목록 Count - postgresql */		
+		SELECT
+			COUNT(*) records
+		FROM tb_m_cm T
+		WHERE 1=1
+		<include refid="whereCondition"/>
+	</select>
+	 
+	
+	<select id="requestList" parameterType="CmConfigModel" resultType="CmConfigModel">
+		/* CmConfigDao.requestList 목록 조회 - postgresql */	
+		SELECT 
+			cm_no, cm_nm, cm_ip, cm_port, cm_id, cm_pw, cm_ver, priority, use_yn, 
+			CASE WHEN T.use_yn='Y' THEN '사용' ELSE '사용안함' END use_yn_nm, upd_date
+		FROM tb_m_cm T
+		WHERE 1=1
+		<include refid="whereCondition"/>
+		<if test="sidx !=null and sidx != ''">
+			ORDER BY ${sidx} ${sord} 
+		</if>
+		<if test="start !=null and start != ''">
+			LIMIT ${length} OFFSET ${start}		  
+		</if>
+	</select>
+	
+	
+	<select id="requestDetail" parameterType="CmConfigModel" resultType="CmConfigModel">
+		/* CmConfigDao.requestDetail 상세 조회 - postgresql */		
+		SELECT
+			cm_no, cm_nm, cm_ip, cm_port, cm_id, cm_pw, cm_ver, priority, use_yn, 
+			CASE WHEN T.use_yn='Y' THEN '사용' ELSE '사용안함' END use_yn_nm, upd_date
+		FROM tb_m_cm T
+		WHERE T.cm_no=#{cm_no}
+	</select>
+	
+	
+	<insert id="requestInsert" parameterType="CmConfigModel">
+		/* CmConfigDao.requestInsert 등록 - postgresql */
+		INSERT INTO tb_m_cm (
+			cm_no,
+			cm_nm,
+			cm_ip,
+			cm_port,
+			cm_id,
+			cm_pw,
+			cm_ver,
+			priority,
+			use_yn,
+			upd_date
+		) VALUES (
+			(select COALESCE(max(cm_no),0)+1 from tb_m_cm),
+			#{cm_nm},
+			#{cm_ip},
+			#{cm_port},
+			#{cm_id},
+			#{cm_pw},
+			#{cm_ver},
+			#{priority},
+			'Y',
+			current_timestamp
+		)
+	</insert>
+
+	<insert id="requestUpdate" parameterType="CmConfigModel">
+ 		UPDATE tb_m_cm SET
+	 		<if test="cm_nm != null and cm_nm != ''">
+				cm_nm = #{cm_nm},
+			</if>
+			<if test="cm_ip != null and cm_ip != ''">
+				cm_ip = #{cm_ip},
+			</if>
+			<if test="cm_port != null and cm_port != ''">
+				cm_port = #{cm_port},
+			</if>
+			<if test="cm_id != null and cm_id != ''">
+				cm_id = #{cm_id},
+			</if>
+			<if test="cm_pw != null and cm_pw != ''">
+				cm_pw = #{cm_pw},
+			</if>
+			<if test="cm_ver != null and cm_ver != ''">
+				cm_ver = #{cm_ver},
+			</if>
+			<if test="priority != null and priority != ''">
+				priority = #{priority},
+			</if>
+			<if test="use_yn != null and use_yn != ''">
+				use_yn = #{use_yn},
+			</if>
+			upd_date=current_timestamp
+		WHERE cm_no=#{cm_no}
+	</insert>
+	
+	
+	<delete id="requestDelete" parameterType="CmConfigModel">
+		/* CmConfigDao.requestDelete 삭제 - postgresql */		
+		DELETE FROM tb_m_cm 
+		WHERE cm_no=#{cm_no}	
+	</delete>
+	
+	
+	<select id="requestTree" parameterType="CmConfigModel" resultType="java.util.LinkedHashMap">
+		/* CmConfigDao.requestTree 트리 목록 조회 - postgresql */
+		SELECT 
+			cm_no id,
+			cm_nm as text,
+			'${contextpath}/'||'static/common/images/server.png' icon,
+			1 as level,
+			'/G1/'||cm_no as path,
+			'0' as parent,
+			'equ' row_type 
+		FROM tb_m_cm
+	</select>
+	
+	
+	<select id="requestActiveCmList" resultType="CmConfigModel">
+		/* CmConfigDao.requestActiveCm 리스트 - postgresql */		
+		SELECT	cm_no, cm_nm, cm_ip, cm_port, cm_id, cm_pw,	cm_ver,	priority, use_yn FROM tb_m_cm WHERE use_yn='Y' ORDER BY priority 
+	</select>
+	
+	
+	<select id="requestCmStateList" resultType="CmConfigModel">
+		/* CmConfigDao.requestCmStateList 디바이스수량포함 리스트 - postgresql */		
+		SELECT 
+		 	T.cm_no,
+		 	T.cm_nm,
+		 	T.cm_ip,
+		 	T.cm_port,
+		 	T.cm_id,
+		 	T.cm_ver,
+		 	T.priority,
+		 	COALESCE(TD.cnt, 0) cnt
+		FROM tb_m_cm T 
+			LEFT OUTER JOIN (
+					select 
+						cm_ip, 
+						count(*) cnt from tb_m_device
+					group by cm_ip
+			) AS TD ON T.cm_ip=TD.cm_ip
+		WHERE T.use_yn='Y' 
+		ORDER BY PRIORITY
+	</select>
+			
+</mapper>

@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.3.0.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.insung</groupId>
+	<artifactId>isStats</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>war</packaging>
+	<name>isStats</name>
+	<description>isStats project for Spring Boot</description>
+
+	<properties>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<dependencies>	
+		<!-- Spring MVC -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		
+		<!-- Mybatis -->
+		<dependency>
+			<groupId>org.mybatis.spring.boot</groupId>
+			<artifactId>mybatis-spring-boot-starter</artifactId>
+			<version>2.1.2</version>
+		</dependency>
+		
+		<!-- JDBC -->
+	    <dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
+		
+		<!-- Embed Tomcat -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
+			<scope>provided</scope>
+		</dependency>		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.junit.vintage</groupId>
+					<artifactId>junit-vintage-engine</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+		<!-- Spring Boot Configuration Annotation STS 3.7.0 이상 -->
+	    <dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-configuration-processor</artifactId>
+		</dependency>
+		
+		<!-- JSP Reload -->
+	    <dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+		</dependency>			
+
+
+		<!-- Postgresql -->
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>runtime</scope>
+		</dependency>		
+		<!-- Mssql -->
+		<dependency>
+	      	<groupId>com.microsoft.sqlserver</groupId>
+	      	<artifactId>mssql-jdbc</artifactId>
+	      	<version>6.4.0.jre8</version>
+	    </dependency> 
+	    <!-- Informix -->
+		<dependency>
+		    <groupId>com.ibm.informix</groupId>
+		    <artifactId>jdbc</artifactId>
+		    <version>4.50.3</version>
+		</dependency>
+
+		<!-- JSP -->		
+		<dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-jasper</artifactId>
+		</dependency>
+		
+		<!-- MyBatis sql pretty -->
+		<dependency>
+		    <groupId>org.bgee.log4jdbc-log4j2</groupId>
+		    <artifactId>log4jdbc-log4j2-jdbc4.1</artifactId>
+		    <version>1.16</version>
+		</dependency>
+		
+		<!-- JSTL -->
+	    <dependency>
+	      	<groupId>jstl</groupId>
+	      	<artifactId>jstl</artifactId>
+	      	<version>1.2</version>
+	    </dependency>
+	
+	    <!-- JSON -->
+	    <dependency>
+		  	<groupId>org.json</groupId>
+		  	<artifactId>json</artifactId>
+		  	<version>20180130</version>
+		</dependency>
+		
+	    <!-- File Upload -->
+	    <dependency>
+	      	<groupId>commons-fileupload</groupId>
+	      	<artifactId>commons-fileupload</artifactId>
+	      	<version>1.3.3</version>
+	    </dependency>
+		<dependency>
+		  	<groupId>commons-io</groupId>
+		  	<artifactId>commons-io</artifactId>
+		  	<version>2.1</version>
+		</dependency>
+		<dependency>
+		  	<groupId>commons-beanutils</groupId>
+		  	<artifactId>commons-beanutils</artifactId>
+		  	<version>1.8.3</version>
+		</dependency>
+		<dependency>
+		  	<groupId>org.apache.directory.studio</groupId>
+		  	<artifactId>org.apache.commons.lang</artifactId>
+		  	<version>2.6</version>
+		</dependency>	
+	
+	    <!-- Excel -->
+	    <dependency>
+	      	<groupId>org.apache.poi</groupId>
+	      	<artifactId>poi</artifactId>
+	      	<version>3.8-beta5</version>
+	    </dependency>
+	    <dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-contrib</artifactId>
+			<version>3.6</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-scratchpad</artifactId>
+			<version>3.7</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>3.8-beta5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml-schemas</artifactId>
+			<version>3.8-beta5</version>
+		</dependency>
+		
+		<!-- httpClient -->
+	    <dependency>
+		    <groupId>org.apache.httpcomponents</groupId>
+		    <artifactId>httpclient</artifactId>
+		    <version>4.5.12</version>
+		</dependency>
+		
+		<!-- text table formatter -->
+		<dependency>
+		    <groupId>org.nocrala.tools.texttablefmt</groupId>
+		    <artifactId>text-table-formatter</artifactId>
+		    <version>1.2.4</version>
+		</dependency>
+		
+	    <!-- properties encrypt -->
+		<dependency>
+		    <groupId>org.jasypt</groupId>
+		    <artifactId>jasypt-spring3</artifactId>
+		    <version>1.9.2</version>
+		</dependency>		
+		
+		<!-- set/get -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.12</version>
+			<scope>provided</scope> 
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<defaultGoal>install</defaultGoal>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

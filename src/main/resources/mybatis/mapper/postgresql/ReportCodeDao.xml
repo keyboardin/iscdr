@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ReportCodeDao">
+
+	<!-- 조회조건 -->
+	<sql id="whereCondition">		
+		<if test="rpt_div != null and rpt_div != ''">
+			AND rpt_div=#{rpt_div}	  
+		</if> 
+	</sql>
+	
+	
+	<select id="requestList" parameterType="ReportCodeModel" resultType="ReportCodeModel">
+		/* ReportCodeDao.requestList 목록 조회 - postgresql */	
+		SELECT 
+			rpt_id, 
+			rpt_par_id,	
+			COALESCE(rpt_nm,'') as rpt_nm,
+			COALESCE(rpt_div,'') as rpt_div, 
+			COALESCE(tv01,'') as tv01, 
+			COALESCE(tv02,'') as tv02,
+			priority, 
+			use_yn
+		FROM
+			tb_c_report_code
+		WHERE
+			use_yn='Y'
+			AND rpt_id = #{rpt_par_id}
+		UNION ALL
+		SELECT 
+			rpt_id, 
+			rpt_par_id,	
+			COALESCE(rpt_nm,'') as rpt_nm,
+			COALESCE(rpt_div,'') as rpt_div, 
+			COALESCE(tv01,'') as tv01, 
+			COALESCE(tv02,'') as tv02,
+			priority,  
+			use_yn
+		FROM
+			tb_c_report_code
+		WHERE
+			use_yn='Y'
+			AND rpt_par_id = #{rpt_par_id}
+		ORDER BY rpt_par_id ASC, priority ASC, rpt_id ASC
+	</select>
+	
+	<select id="requestChildList" parameterType="ReportCodeModel" resultType="ReportCodeModel">
+		/* ReportCodeDao.requestChildList 목록 조회 - postgresql */	
+		SELECT
+			rpt_id, 
+			rpt_par_id,	
+			COALESCE(rpt_nm,'') as rpt_nm,
+			COALESCE(rpt_div,'') as rpt_div, 
+			COALESCE(tv01,'') as tv01, 
+			COALESCE(tv02,'') as tv02,
+			priority,  
+			use_yn
+		FROM 
+			tb_c_report_code
+		WHERE
+			rpt_par_id = #{rpt_par_id}
+			AND use_yn = 'Y'
+			<include refid="whereCondition"/>
+		ORDER BY priority
+	</select>
+	
+	
+	<select id="requestDetail" parameterType="ReportCodeModel" resultType="ReportCodeModel">
+		/* ReportCodeDao.requestDetail 상세 조회 - postgresql */		
+		SELECT 
+			me.rpt_id, 
+			me.rpt_par_id, 
+			COALESCE(me.rpt_nm,'') as rpt_nm, 
+			COALESCE(par.rpt_nm,'') as rpt_par_nm, 
+			COALESCE(me.rpt_div,'') as rpt_div, 
+			COALESCE(me.tv01,'') as tv01, 
+			COALESCE(me.tv02,'') as tv02, 
+			me.priority, me.use_yn
+		FROM
+			tb_c_report_code me
+			left outer join tb_c_report_code par on me.rpt_par_id = par.rpt_id
+		WHERE
+			me.rpt_id = #{rpt_id}
+	</select>
+	
+	
+	<insert id="requestInsert" parameterType="ReportCodeModel">
+		/* ReportCodeDao.requestInsert 등록 - postgresql */		
+		INSERT INTO tb_c_report_code (
+			rpt_id, 
+			rpt_par_id,	
+			rpt_nm,
+			rpt_div, 
+			tv01, 
+			tv02,
+			priority, 
+			use_yn
+		) VALUES (
+			#{rpt_id},
+			#{rpt_par_id},
+			#{rpt_nm},
+			#{rpt_div},
+			#{tv01},
+			#{tv02},
+			#{priority},
+			'Y'
+		)
+	</insert>
+	
+	
+	<update id="requestUpdate" parameterType="ReportCodeModel">
+		/* ReportCodeDao.requestUpdate 수정 - postgresql */		
+		UPDATE tb_c_report_code SET
+			rpt_par_id = #{rpt_par_id},	  
+			rpt_nm = #{rpt_nm},	  
+			rpt_div = #{rpt_div},	  
+			tv01 = #{tv01},	  
+			tv02 = #{tv02},	  
+			priority = #{priority},	  
+			use_yn = #{use_yn}	  
+		WHERE 
+			rpt_id = #{rpt_id}		
+	</update>
+	
+	
+	<delete id="requestDelete" parameterType="ReportCodeModel">
+		/* ReportCodeDao.requestDelete 삭제 - postgresql */		
+		DELETE 
+			FROM tb_c_report_code 
+		WHERE 		
+			rpt_id = #{rpt_id}	
+	</delete>
+	
+	<select id="requestTree" parameterType="ReportCodeModel" resultType="java.util.HashMap">
+		/* ReportCodeDao.requestTree 트리 - postgresql */	
+		WITH RECURSIVE tb_result(rpt_id, rpt_nm, rpt_par_id, level, path, cycle) AS (
+			SELECT 
+		      g.rpt_id,
+				g.rpt_nm,
+				g.rpt_par_id,
+		      0,
+		      ARRAY[g.rpt_id::text] AS "array",
+		      false AS bool
+		   FROM tb_c_report_code g
+		   WHERE g.rpt_par_id='#'
+		  UNION ALL
+		   SELECT 
+		      grp.rpt_id,
+				grp.rpt_nm,
+		      grp.rpt_par_id,
+		      (r.level + 1),
+				(r.path || (grp.rpt_id)::text),
+		      ((grp.rpt_id)::text = ANY (r.path)) 
+		     FROM ( SELECT 
+		            	rpt_id,
+							rpt_nm,
+							rpt_par_id
+		             FROM tb_c_report_code 
+		             WHERE use_yn='Y'
+		          ) grp,
+		      tb_result r
+		    WHERE (grp.rpt_par_id=r.rpt_id) 
+		  )
+		SELECT 
+			rslt.rpt_id as id,
+			rslt.rpt_nm as text,
+		   	rslt.rpt_par_id as parent,
+			rslt.level,
+			replace(replace(replace((rslt.path)::text, '{'::text, '/'::text), ','::text, '/'::text), '}'::text, ''::text) AS path,
+			case when rslt.level <![CDATA[<]]> ${max_depth}
+			then '/isStats/static/common/images/folder.png' 
+			else '/isStats/static/common/images/template.png' end as icon
+		FROM tb_result rslt
+		where rslt.level != 3
+		order by id
+	</select>
+	
+	
+	
+	<select id="tableColumnList" parameterType="TableSchemaModel" resultType="TableSchemaModel">
+		/* table column list 조회 - mssql */	
+		SELECT 
+			me.tv01 as table_name,
+			par.tv01 as column_type,
+			COALESCE(par.rpt_nm,'') as column_name,
+			par.tv02 as column_align,
+			par.priority as column_order
+		FROM
+			tb_c_report_code me, tb_c_report_code par
+		WHERE
+			me.rpt_id=#{rpt_id}
+			AND par.rpt_div='COLUMN'
+			AND me.rpt_id = par.rpt_par_id
+		order by par.priority
+	</select>
+	
+	
+	<delete id="requestDeleteBatch" parameterType="ReportCodeModel">
+		/* ReportCodeDao.requestDeleteBatch 삭제 - postgresql */		
+		DELETE 
+			FROM tb_c_report_code 
+		WHERE 		
+			rpt_par_id = #{rpt_par_id}	
+			AND rpt_div=#{rpt_div}
+	</delete>
+	<insert id="requestInsertBatch" parameterType="ReportCodeModel">
+		/* ReportCodeDao.requestInsertBatch 등록 - postgresql */		
+		INSERT INTO tb_c_report_code (
+			rpt_id, 
+			rpt_par_id,	
+			rpt_nm,
+			rpt_div, 
+			tv01, 
+			tv02,
+			priority, 
+			use_yn
+		) VALUES (
+			#{rpt_id},
+			#{rpt_par_id},
+			#{rpt_nm},
+			#{rpt_div},
+			#{tv01},
+			#{tv02},
+			#{priority},
+			'Y'
+		)
+	</insert>
+
+</mapper>

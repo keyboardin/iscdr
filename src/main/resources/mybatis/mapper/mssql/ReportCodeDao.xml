@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ReportCodeDao">
+
+	<select id="requestList" parameterType="ReportCodeModel" resultType="ReportCodeModel">
+		/* ReportCodeDao.requestList 목록 조회 - mssql */	
+		SELECT 
+			rpt_id, 
+			rpt_par_id,	
+			ISNULL(rpt_nm, '') 'rpt_nm',
+			ISNULL(rpt_div,'') 'rpt_div', 
+			ISNULL(tv01,'') 'tv01', 
+			ISNULL(tv02,'') 'tv02',
+			priority, 
+			use_yn
+		FROM
+			ARS.dbo.tb_c_report
+		WHERE
+			rpt_id = #{rpt_par_id}
+		UNION ALL
+		SELECT
+			rpt_id, 
+			rpt_par_id,	
+			ISNULL(rpt_nm, '') 'rpt_nm',
+			ISNULL(rpt_div,'') 'rpt_div', 
+			ISNULL(tv01,'') 'tv01', 
+			ISNULL(tv02,'') 'tv02',
+			priority, 
+			use_yn
+		FROM 
+			ARS.dbo.tb_c_report
+		WHERE
+			rpt_par_id = #{rpt_par_id}
+		ORDER BY rpt_id ASC, priority ASC
+	</select>
+	
+	<select id="requestChildList" parameterType="ReportCodeModel" resultType="ReportCodeModel">
+		/* ReportCodeDao.requestChildList 목록 조회 - mssql */	
+		SELECT
+			rpt_id, 
+			rpt_par_id,	
+			ISNULL(rpt_nm, '') 'rpt_nm',
+			ISNULL(rpt_div,'') 'rpt_div', 
+			ISNULL(tv01,'') 'tv01', 
+			ISNULL(tv02,'') 'tv02',
+			priority, 
+			use_yn
+		FROM 
+			ARS.dbo.tb_c_report
+		WHERE
+			rpt_par_id = #{rpt_par_id}
+			AND use_yn = 'Y'
+		ORDER BY rpt_id ASC, priority ASC
+	</select>
+	
+	<select id="requestDetail" parameterType="ReportCodeModel" resultType="ReportCodeModel">
+		/* ReportCodeDao.requestDetail 상세 조회 - mssql */		
+		SELECT 
+			me.rpt_id, me.rpt_par_id, 
+			ISNULL(me.rpt_nm,'') 'rpt_nm', ISNULL(par.rpt_nm,'') 'rpt_par_nm', 
+			ISNULL(me.rpt_div,'') 'rpt_div', ISNULL(me.tv01,'') 'tv01', ISNULL(me.tv02,'') 'tv02', me.priority, me.use_yn
+		FROM
+			ARS.dbo.tb_c_report me, ARS.dbo.tb_c_report par
+		WHERE
+			me.rpt_id = #{rpt_id}
+			AND me.rpt_par_id = par.rpt_id
+	</select>
+	
+	
+	<insert id="requestInsert" parameterType="ReportCodeModel">
+		/* ReportCodeDao.requestInsert 등록 - mssql */		
+		INSERT INTO ARS.dbo.tb_c_report (
+			rpt_id, 
+			rpt_par_id,	
+			rpt_nm,
+			rpt_div, 
+			tv01, 
+			tv02,
+			priority, 
+			use_yn
+		) VALUES (
+			#{rpt_id},
+			#{rpt_par_id},
+			#{rpt_nm},
+			#{rpt_div},
+			#{tv01},
+			#{tv02},
+			#{priority},
+			'Y'
+		)
+	</insert>
+	
+	
+	<update id="requestUpdate" parameterType="ReportCodeModel">
+		/* ReportCodeDao.requestUpdate 수정 - mssql */		
+		UPDATE ARS.dbo.tb_c_report SET
+			rpt_par_id = #{rpt_par_id},	  
+			rpt_nm = #{rpt_nm},	  
+			rpt_div = #{rpt_div},	  
+			tv01 = #{tv01},	  
+			tv02 = #{tv02},	  
+			priority = #{priority},	  
+			use_yn = #{use_yn}	  
+		WHERE 
+			rpt_id = #{rpt_id}		
+	</update>
+	
+	
+	<delete id="requestDelete" parameterType="ReportCodeModel">
+		/* ReportCodeDao.requestDelete 삭제 - mssql */		
+		DELETE 
+			FROM ARS.dbo.tb_c_report 
+		WHERE 		
+			rpt_id = #{rpt_id}	
+	</delete>
+	
+	<select id="requestTree" parameterType="ReportCodeModel" resultType="java.util.HashMap">
+		/* ReportCodeDao.requestTree 트리 - mssql */	
+		WITH rpt_code(rpt_id, rpt_nm, rpt_par_id, fullpath, level)
+		AS
+		(
+			SELECT rpt_id, rpt_nm, rpt_par_id, CONVERT(VARCHAR(255), rpt_id), 0
+			FROM ARS.dbo.tb_c_report
+			WHERE rpt_id = 'RT'
+			UNION ALL
+			SELECT 
+				main.rpt_id, main.rpt_nm, main.rpt_par_id, 
+				CONVERT(VARCHAR(255),CONVERT(VARCHAR(255),sub.fullpath)+'/'+main.rpt_id), level+1
+			FROM ARS.dbo.tb_c_report AS main, rpt_code AS sub 
+			WHERE main.rpt_par_id = sub.rpt_id
+		)
+		SELECT distinct
+			a.rpt_id AS 'id', a.rpt_nm AS 'text', a.rpt_par_id AS 'parent', 
+			a.level, a.fullpath AS 'path',
+			case when a.level <![CDATA[<]]> ${max_depth} then '${context}/static/common/images/folder.png' else '${context}/static/common/images/template.png' end 'icon'
+		FROM rpt_code a LEFT OUTER JOIN rpt_code b ON a.rpt_id = b.rpt_par_id
+		ORDER BY a.rpt_id, a.level
+	</select>
+</mapper>

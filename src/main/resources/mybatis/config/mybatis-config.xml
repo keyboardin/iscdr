@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">   
+      
+<configuration> 
+
+  <typeAliases>  
+
+	<!-- 코드관리 -->
+	<typeAlias alias="CommCodeModel" 		type="com.insung.isup.code.model.CommCodeModel" 	/>
+  	<typeAlias alias="MenuCodeModel" 		type="com.insung.isup.code.model.MenuCodeModel" 	/>  	
+  	<typeAlias alias="MenuCodeMapModel" 	type="com.insung.isup.code.model.MenuCodeMapModel" 	/>  	
+	
+	<!-- 환경설정 -->
+  	<typeAlias alias="BatchConfigModel" 	type="com.insung.isup.conf.model.BatchConfigModel" 	/>
+  	<typeAlias alias="EmpAdConfigModel" 	type="com.insung.isup.conf.model.EmpAdConfigModel" 	/>
+  	<typeAlias alias="EmpDbConfigModel" 	type="com.insung.isup.conf.model.EmpDbConfigModel" 	/>
+  	<typeAlias alias="OperConfigModel" 		type="com.insung.isup.conf.model.OperConfigModel" 	/>
+  	<typeAlias alias="SystemInfoModel" 		type="com.insung.isup.conf.model.SystemInfoModel" 	/>
+  	<typeAlias alias="CmConfigModel" 		type="com.insung.isup.conf.model.CmConfigModel" 	/>  	
+  	
+  	<!-- 사용자관리 -->
+  	<typeAlias alias="UserModel" 			type="com.insung.isup.user.model.UserModel" />
+  	
+  	<!-- 인사정보 -->
+ 	<typeAlias alias="EmpModel" 			type="com.insung.isup.emp.model.EmpModel" 	/>
+  
+  	<!-- 통계 -->
+  	<typeAlias alias="ReportCodeModel" 		type="com.insung.isup.wizard.model.ReportCodeModel" 	/>
+  	<typeAlias alias="ReportModel" 			type="com.insung.isup.wizard.model.ReportModel" 		/>
+  	<typeAlias alias="WizardModel" 			type="com.insung.isup.wizard.model.WizardModel" 		/>
+  	<typeAlias alias="StatsIpccModel" 		type="com.insung.isup.statsipcc.model.StatsIpccModel" 	/>
+  	<typeAlias alias="TableSchemaModel" 	type="com.insung.isup.wizard.model.TableSchemaModel" 	/>
+  		
+  	<!-- Log -->
+	<typeAlias alias="UserLogModel" 		type="com.insung.isup.log.model.UserLogModel" 			/>
+	<typeAlias alias="BatchLogModel" 		type="com.insung.isup.log.model.BatchLogModel" 			/>
+	
+  </typeAliases>
+  
+</configuration>
+

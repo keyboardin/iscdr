@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="EmpDao">
+
+	<!-- 조회조건 -->
+	<sql id="whereCondition">
+		<if test="filter != null and filter != ''">			 
+			AND (T.emp_no LIKE '%'||replace(replace(#{filter}, '_', '\_'), '%', '\%')||'%'
+				OR T.emp_nm LIKE '%'||replace(replace(#{filter}, '_', '\_'), '%', '\%')||'%'
+				OR T.org_nm LIKE '%'||replace(replace(#{filter}, '_', '\_'), '%', '\%')||'%'
+				OR T.extension LIKE '%'||replace(replace(#{filter}, '_', '\_'), '%', '\%')||'%' )		
+		</if>
+		<if test="emp_no != null and emp_no != ''">
+			AND emp_no=#{emp_no}		  
+		</if>
+		<if test="user_id != null and user_id != ''">
+			AND user_id=#{user_id}		  
+		</if> 
+		<if test="emp_email != null and emp_email != ''">
+			AND emp_email=#{emp_email}		  
+		</if>
+	</sql>
+
+	<select id="requestListCount" parameterType="EmpModel" resultType="EmpModel">
+		/* EmpDao.requestListCount 목록 Count - postgresql  */		
+		SELECT
+			COUNT(*) records
+		FROM tb_m_emp T
+		WHERE 1=1
+		<include refid="whereCondition"/>
+	</select>
+	 
+	
+	<select id="requestList" parameterType="EmpModel" resultType="EmpModel">
+		/* EmpDao.requestList 목록 조회 - postgresql  */	
+		SELECT
+			*
+		FROM tb_m_emp T
+		WHERE 1=1
+		<include refid="whereCondition"/>
+		<if test="sidx==null or sidx==''">
+			ORDER BY T.emp_nm
+		</if>
+		<if test="sidx!=null and sidx!=''">
+			ORDER BY ${sidx} ${sord} 
+		</if>
+		<if test="start!=null and start!=''">
+			LIMIT ${length} OFFSET ${start}	
+		</if>
+	</select>
+	
+	
+	<select id="requestDetail" parameterType="EmpModel" resultType="EmpModel">
+		/* EmpDao.requestDetail 상세 조회 - postgresql  */		
+		SELECT
+			*
+		FROM tb_m_emp T
+		<if test="emp_no != null and emp_no != ''">
+			WHERE emp_no=#{emp_no}		  
+		</if>
+		<if test="user_id != null and user_id != ''">
+			WHERE user_id=#{user_id}		  
+		</if> 
+	</select>
+	
+	
+	<insert id="requestInsert" parameterType="EmpModel">
+		/* EmpDao.requestInsert 등록 - postgresql  */		
+		INSERT INTO tb_m_emp (
+				emp_no,
+				user_id,
+				emp_nm,
+				org_cd,
+				org_nm,
+				pos_cd,
+				pos_nm,
+				duty_cd,
+				duty_nm,
+				extension,
+				emp_tel,
+				emp_email,
+				emp_mobile,
+				sticky_yn,
+				reg_date,
+				upd_date
+			) VALUES (
+				#{emp_no},
+				#{user_id},
+				#{emp_nm},
+				#{org_cd},
+				#{org_nm},
+				#{pos_cd},
+				#{pos_nm},
+				#{duty_cd},
+				#{duty_nm},
+				#{extension},
+				#{emp_tel},
+				#{emp_email},
+				#{emp_mobile},
+				'N'
+				current_timestamp,
+				current_timestamp
+			)
+	</insert>
+	
+	
+	<update id="requestUpdate" parameterType="EmpModel">
+		/* EmpDao.requestUpdate 수정 - postgresql  */		
+		UPDATE tb_m_emp SET
+			emp_nm=#{emp_nm},
+			<if test="org_cd != null and org_cd != ''">
+				org_cd=#{org_cd},
+			</if>
+			org_nm=#{org_nm},
+			<if test="pos_cd != null and pos_cd != ''">
+				pos_cd=#{pos_cd},
+			</if>
+			pos_nm=#{pos_nm},
+			<if test="duty_cd != null and duty_cd != ''">
+				duty_cd=#{duty_cd},
+			</if>
+			<if test="duty_nm != null and duty_nm != ''">
+				duty_nm=#{duty_nm},
+			</if>
+			extension=#{extension},
+			emp_tel=#{emp_tel},
+			<if test="emp_email != null and emp_email != ''">
+				emp_email=#{emp_email},
+			</if>
+			<if test="emp_mobile != null and emp_mobile != ''">
+				emp_mobile=#{emp_mobile},
+			</if>
+			upd_date=current_timestamp
+		WHERE emp_no=#{emp_no}
+	</update>
+	
+	
+	<delete id="requestDelete" parameterType="EmpModel">
+		/* EmpDao.requestDelete 삭제 - postgresql */	
+		DELETE FROM tb_m_emp
+		WHERE emp_no=#{emp_no}
+	</delete>
+		
+	<sql id="whereConditionTree">		
+		<if test="search_value != null and search_value != ''">	
+			<if test="search_column == 'org_nm'">
+				AND T.org_nm LIKE '%'+replace(replace(#{search_value}, '_', '\_'), '%', '\%')+'%'
+			</if>	
+		</if>
+		<if test="row_type != null and row_type != ''">
+			AND row_type=#{row_type}		  
+		</if> 
+	</sql>
+	
+	<select id="requestTree" parameterType="EmpModel" resultType="java.util.LinkedHashMap">
+		/* EmpDao.requestTree 트리 목록 조회 - postgresql */
+		SELECT 
+			T.org_cd id,
+			T.up_org_cd parent,
+			T.org_nm AS text,
+			T.row_type AS type,
+			T.level,
+			T.group_path path,
+			CASE WHEN T.row_type='grp' THEN '${contextpath}/static/common/images/folder.png' 
+		          ELSE '${contextpath}/static/common/images/people-icon_16.png' END icon,
+		    TE.org_nm,
+   			TE.emp_email
+		FROM vw_org_tree T
+		LEFT OUTER JOIN tb_m_emp TE ON T.org_cd=TE.emp_no
+		<include refid="whereConditionTree"/>
+		ORDER BY group_path
+	</select>
+	
+	
+	
+	<delete id="requestDeleteBatchEmp" parameterType="java.util.LinkedHashMap">
+		/* EmpDao.requestDeleteBatchEmp 삭제 - postgresql */	
+		<foreach collection="deleteList" item="item" separator=";">
+			DELETE FROM tb_m_emp
+			WHERE emp_no=#{item.emp_no}
+		</foreach>
+	</delete>	
+	
+	<insert id="requestInsertBatchEmp" parameterType="java.util.LinkedHashMap">
+		/* EmpDao.requestInsertBatchEmp 등록 - postgresql */		
+		<foreach collection="insertList" item="item" separator=";">
+			INSERT INTO tb_m_emp (
+				emp_no,
+				user_id,
+				emp_nm,
+				org_cd,
+				org_nm,
+				pos_cd,
+				pos_nm,
+				duty_cd,
+				duty_nm,
+				extension,
+				emp_tel,
+				emp_email,
+				emp_mobile,
+				sticky_yn,
+				reg_date,
+				upd_date
+			) VALUES (
+				#{item.emp_no},
+				#{item.user_id},
+				#{item.emp_nm},
+				#{item.org_cd},
+				#{item.org_nm},
+				#{item.pos_cd},
+				#{item.pos_nm},
+				#{item.duty_cd},
+				#{item.duty_nm},
+				#{item.extension},
+				#{item.emp_tel},
+				#{item.emp_email},
+				#{item.emp_mobile},
+				'N',
+				current_timestamp,
+				current_timestamp
+			)
+		</foreach>
+	</insert>
+	
+	<insert id="requestUpsertBatchEmp" parameterType="java.util.LinkedHashMap">
+		/* EmpDao.requestUpsertBatchEmp 등록/수정 - postgresql */		
+		<foreach collection="upsertList" item="item" separator=";">
+		INSERT INTO tb_m_emp (
+			emp_no,
+			user_id,
+			emp_nm,
+			org_nm,
+			pos_nm,
+			extension,
+			emp_tel,
+			emp_mobile,
+			sticky_yn,
+			reg_date,
+			upd_date
+		) VALUES (
+			#{item.emp_no},
+			#{item.user_id},
+			#{item.emp_nm},
+			#{item.org_nm},
+			#{item.pos_nm},
+			#{item.extension},
+			#{item.emp_tel},
+			#{item.emp_mobile},
+			'N',
+			current_timestamp,
+			current_timestamp
+		) ON CONFLICT (emp_no) DO 
+			UPDATE SET
+				emp_nm=#{item.emp_nm},
+				org_nm=#{item.org_nm},
+				pos_nm=#{item.pos_nm},
+				extension=#{item.extension},
+				emp_tel=#{item.emp_tel},
+				emp_mobile=#{item.emp_mobile},
+				upd_date=current_timestamp
+		</foreach>
+	</insert>	
+	
+	
+	<delete id="requestDeleteBatchOrg" parameterType="EmpModel">
+		/* EmpDao.requestDeleteBatchOrg 삭제 - postgresql */	
+		DELETE FROM tb_m_org 
+	</delete>	
+	<insert id="requestInsertBatchOrg" parameterType="java.util.LinkedHashMap">
+		/* EmpDao.requestInsertBatchOrg 등록 - postgresql */		
+		<foreach collection="insertList" item="item" separator=";">
+			INSERT INTO tb_m_org (
+				org_cd,
+				org_nm,
+				up_org_cd,
+				upd_date
+			) VALUES (
+				#{item.org_cd},
+				#{item.org_nm},
+				#{item.up_org_cd},
+				current_timestamp
+			)
+		</foreach>
+	</insert>
+	
+	<select id="requestEmpNo" parameterType="UserModel" resultType="UserModel">
+		/* UserDao.requestEmpNo 이메일로 사번정보조회 - postgresql */
+		SELECT
+			emp_no
+		FROM tb_m_emp
+		WHERE emp_email = #{emp_email}
+	</select>
+	
+</mapper>

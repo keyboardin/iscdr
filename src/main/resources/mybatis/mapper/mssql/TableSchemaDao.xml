@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="TableSchemaDao">
+
+	<!-- 조회조건 -->
+	<sql id="whereCondition">	
+	</sql>
+	
+	<select id="tableList" parameterType="TableSchemaModel" resultType="TableSchemaModel">
+		/* 사용 table list 조회 - mssql */	
+		SELECT object_id, name 'table_name' FROM CSTM_APP.sys.tables
+	</select>
+	
+	<select id="tableColumnList" parameterType="TableSchemaModel" resultType="TableSchemaModel">
+		/* table column list 조회 - mssql */	
+		SELECT
+			tschm.TABLE_NAME 'table_name', 
+			tschm.COLUMN_NAME 'column_name', 
+			tschm.DATA_TYPE 'column_type',
+			CASE 
+				WHEN tschm.DATA_TYPE IN('char','varchar') THEN tschm.CHARACTER_MAXIMUM_LENGTH 
+				WHEN tschm.DATA_TYPE IN('datetime') THEN '30'
+				ELSE tschm.NUMERIC_PRECISION END 'column_length',
+			tschm.ORDINAL_POSITION 'column_order'
+		FROM 
+			CSTM_APP.INFORMATION_SCHEMA.COLUMNS tschm
+		WHERE 
+		     TABLE_NAME = #{table_name}
+		ORDER BY
+			tschm.ORDINAL_POSITION ASC
+	</select>
+	
+</mapper>

@@ -1,0 +1,68 @@
+<configuration>
+   
+   	<springProfile name="off"> 
+   		<property resource="properties/log/logback-off.properties"/> 
+   	</springProfile>
+   	<springProfile name="info"> 
+   		<property resource="properties/log/logback-info.properties"/> 
+   	</springProfile>
+   	<springProfile name="debug"> 
+   		<property resource="properties/log/logback-debug.properties"/> 
+   	</springProfile>
+   	<springProfile name="trace"> 
+   		<property resource="properties/log/logback-trace.properties"/> 
+   	</springProfile>
+
+
+	<property name="log_pattern" value="${log.pattern}"/>
+	<!-- Console Appender --> 
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender"> 
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder"> 
+			<pattern>${log_pattern}</pattern> 
+		</encoder> 
+	</appender>
+	
+	
+	<property name="root" 					value="${logging.level.root}"/>
+	<property name="com_insung" 			value="${logging.level.com.insung}"/>
+	<property name="com_zaxxer_hikari" 		value="${logging.level.com.zaxxer.hikari}"/>
+	<property name="org_mybatis" 			value="${logging.level.org.mybatis}"/>
+	<property name="jdbc_audit" 			value="${logging.level.jdbc.audit}"/>
+	<property name="jdbc_connection" 		value="${logging.level.jdbc.connection}"/>
+	<property name="jdbc_sqlonly" 			value="${logging.level.jdbc.sqlonly}"/>
+	<property name="jdbc_sqltiming" 		value="${logging.level.jdbc.sqltiming}"/>
+	<property name="jdbc_resultset" 		value="${logging.level.jdbc.resultset}"/>
+	<property name="jdbc_resultsettable"	value="${logging.level.jdbc.resultsettable}"/>
+
+	<logger name="root" level="${root}" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>	
+	<logger name="com.insung" level="${com_insung}" additivity="false"> 
+		<appender-ref ref="STDOUT"/> 
+	</logger>
+	<logger name="com.zaxxer.hikari" level="${com_zaxxer_hikari}" additivity="false"> 
+		<appender-ref ref="STDOUT"/> 
+	</logger>
+	<logger name="org.mybatis" level="${org_mybatis}" additivity="false"> 
+		<appender-ref ref="STDOUT"/> 
+	</logger>	
+	<logger name="jdbc.audit" level="${jdbc_audit}" additivity="false"> 
+		<appender-ref ref="STDOUT"/> 
+	</logger> 
+	<logger name="jdbc.connection" level="${jdbc_connection}" additivity="false"> 
+		<appender-ref ref="STDOUT"/> 
+	</logger> 
+	<logger name="jdbc.sqlonly" level="${jdbc_sqlonly}" additivity="false"> 
+		<appender-ref ref="STDOUT"/>
+	</logger> 
+	<logger name="jdbc.sqltiming" level="${jdbc_sqltiming}" additivity="false"> 
+		<appender-ref ref="STDOUT"/> 
+	</logger> 	
+	<logger name="jdbc.resultset" level="${jdbc_resultset}" additivity="false"> 
+		<appender-ref ref="STDOUT"/> 
+	</logger> 
+	<logger name="jdbc.resultsettable" level="${jdbc_resultsettable}" additivity="false"> 
+		<appender-ref ref="STDOUT"/> 
+	</logger> 
+    
+</configuration>
