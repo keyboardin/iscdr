@@ -169,8 +169,8 @@
 			rslt.level,
 			replace(replace(replace((rslt.path)::text, '{'::text, '/'::text), ','::text, '/'::text), '}'::text, ''::text) AS path,
 			case when rslt.level <![CDATA[<]]> ${max_depth}
-			then '/isStats/static/common/images/folder.png' 
-			else '/isStats/static/common/images/template.png' end as icon
+			then '/isCdr/static/common/images/folder.png' 
+			else '/isCdr/static/common/images/template.png' end as icon
 		FROM tb_result rslt
 		where rslt.level != 3
 		order by id
